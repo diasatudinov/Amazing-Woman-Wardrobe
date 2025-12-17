@@ -2,7 +2,6 @@
 //  ContentView.swift
 //  Amazing Woman Wardrobe
 //
-//  Created by Dias Atudinov on 17.12.2025.
 //
 
 import SwiftUI
