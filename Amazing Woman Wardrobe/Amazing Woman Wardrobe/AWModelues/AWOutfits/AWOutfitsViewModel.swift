@@ -21,11 +21,11 @@ final class AWOutfitsViewModel: ObservableObject {
     // MARK: – UserDefaults keys
     private var outfitsFileURL: URL {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return dir.appendingPathComponent("outfits.json")
+        return dir.appendingPathComponent("outfitsTest3.json")
     }
     private var outfitItemsFileURL: URL {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return dir.appendingPathComponent("outfitItems.json")
+        return dir.appendingPathComponent("outfitItemsTest3.json")
     }
     
     // MARK: – Init
@@ -100,6 +100,13 @@ final class AWOutfitsViewModel: ObservableObject {
         outfits.remove(at: index)
     }
     
+    func edit(outfit: Outfit, name: String, description: String, items: [Item]) {
+        guard let index = outfits.firstIndex(of: outfit) else { return }
+        outfits[index].name = name
+        outfits[index].description = description
+        outfits[index].clothes = items
+    }
+    
     // MARK: – Example buy action
     func add(item: Item) {
         guard !outfitItems.contains(item) else { return }
@@ -110,5 +117,20 @@ final class AWOutfitsViewModel: ObservableObject {
     func delete(item: Item) {
         guard let index = outfitItems.firstIndex(of: item) else { return }
         outfitItems.remove(at: index)
+    }
+    
+    func edit(item: Item, image: String?, name: String, category: ItemCategory, status: ItemStatus) {
+        guard let index = outfitItems.firstIndex(of: item) else { return }
+        outfitItems[index].imageFileName = image
+        outfitItems[index].name = name
+        outfitItems[index].category = category
+        outfitItems[index].status = status
+        
+    }
+    
+    func increaseVersion(item: Item, image: String?) {
+        guard let index = outfitItems.firstIndex(of: item) else { return }
+        outfitItems[index].imageFileName = image
+        outfitItems[index].imageVersion += 1
     }
 }

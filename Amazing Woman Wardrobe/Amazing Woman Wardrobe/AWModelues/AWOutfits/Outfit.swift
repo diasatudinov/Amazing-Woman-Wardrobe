@@ -19,28 +19,38 @@ struct Item: Codable, Equatable, Hashable {
     var category: ItemCategory
     var status: ItemStatus
     
-    
-    var imageData: Data?
-    
-    var image: UIImage? {
-        get {
-            guard let imageData else { return nil }
-            return UIImage(data: imageData)
-        }
-        set {
-            imageData = newValue?.jpegData(compressionQuality: 0.8)
-        }
-    }
+    var imageFileName: String?
+    var imageVersion: Int = 0
 }
 
 enum ItemCategory: String, CaseIterable, Codable {
-    case top
-    case bottom
-    case footwear
-    case accessories
+    case top = "Top"
+    case bottom = "Bottom"
+    case footwear = "Footwear"
+    case accessories = "Accessories"
+    
+    
 }
 
 enum ItemStatus: String, CaseIterable, Codable {
     case clean
     case inLaundry
+    
+    var text: String {
+        switch self {
+        case .clean:
+                "Clean"
+        case .inLaundry:
+                "In laundry"
+        }
+    }
+    
+    var image: ImageResource {
+        switch self {
+        case .clean:
+                .cleanIconAW
+        case .inLaundry:
+                .inLaundryIconAW
+        }
+    }
 }

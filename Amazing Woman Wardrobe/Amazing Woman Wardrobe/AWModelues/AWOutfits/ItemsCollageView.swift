@@ -1,37 +1,51 @@
+//
+//  ItemsCollageView.swift
+//  Amazing Woman Wardrobe
+//
+//
+
+import SwiftUI
+
 struct ItemsCollageView: View {
     let items: [Item]
     var cornerRadius: CGFloat = 14
 
-    private var images: [UIImage] { items.compactMap { $0.image } }
-
+    private var fileNames: [String] { items.compactMap { $0.imageFileName } }
+    
     var body: some View {
         GeometryReader { geo in
             let s = geo.size
+            
             ZStack {
                 background
-
-                if images.isEmpty {
-                    placeholder
-                } else if images.count == 1 {
-                    tile(images[0], size: s)
-                } else if images.count == 2 {
-                    two(images, size: s)
-                } else if images.count == 3 {
-                    three(images, size: s)
-                } else if images.count == 4 {
-                    four(images, size: s)
+                
+                if fileNames.isEmpty {
+                    fourPlaceholders(size: s)
+                } else if fileNames.count == 1 {
+                    tileFile(fileNames[0], size: s)
+                } else if fileNames.count == 2 {
+                    two(fileNames, size: s)
+                } else if fileNames.count == 3 {
+                    three(fileNames, size: s)
+                } else if fileNames.count == 4 {
+                    four(fileNames, size: s)
                 } else {
-                    moreThanFour(images, size: s)
+                    moreThanFour(fileNames, size: s)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(lineWidth: 1)
+                    .foregroundStyle(.calendar)
+            }
         }
-        .aspectRatio(1, contentMode: .fit) // квадратная ячейка; убери если не нужно
+        .aspectRatio(1, contentMode: .fit)
     }
 
     private var background: some View {
         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-            .fill(Color(.secondarySystemBackground))
+            .fill(Color(.bg))
     }
 
     private var placeholder: some View {
@@ -45,98 +59,124 @@ struct ItemsCollageView: View {
 
 private extension ItemsCollageView {
 
-    func tile(_ uiImage: UIImage, size: CGSize) -> some View {
-        Image(uiImage: uiImage)
-            .resizable()
-            .scaledToFill()
+    func tileFile(_ fileName: String, size: CGSize) -> some View {
+            FileTileView(
+                url: ImageStore.shared.url(named: fileName),
+                cacheKey: fileName,
+                size: size,
+                placeholderSystemName: "photo.circle"
+            )
+        }
+    
+    func tilePlaceholder(size: CGSize) -> some View {
+            ZStack {
+                Color(.secondarySystemBackground).opacity(0.2)
+                Image(systemName: "photo.circle")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(size.width * 0.18)
+            }
             .frame(width: size.width, height: size.height)
             .clipped()
-    }
-
-    func two(_ imgs: [UIImage], size: CGSize) -> some View {
-        let gap: CGFloat = 2
-        let w = (size.width - gap) / 2
-        return HStack(spacing: gap) {
-            tile(imgs[0], size: CGSize(width: w, height: size.height))
-            tile(imgs[1], size: CGSize(width: w, height: size.height))
         }
-    }
 
-    func three(_ imgs: [UIImage], size: CGSize) -> some View {
-        // 2×2 сетка, где первая картинка занимает всю левую половину
-        let gap: CGFloat = 2
-        let halfW = (size.width - gap) / 2
-        let halfH = (size.height - gap) / 2
+        func fourPlaceholders(size: CGSize) -> some View {
+            let gap: CGFloat = 2
+            let cellW = (size.width - gap) / 2
+            let cellH = (size.height - gap) / 2
 
-        return HStack(spacing: gap) {
-            tile(imgs[0], size: CGSize(width: halfW, height: size.height))
-            VStack(spacing: gap) {
-                tile(imgs[1], size: CGSize(width: halfW, height: halfH))
-                tile(imgs[2], size: CGSize(width: halfW, height: halfH))
+            return VStack(spacing: gap) {
+                HStack(spacing: gap) {
+                    tilePlaceholder(size: CGSize(width: cellW, height: cellH))
+                    tilePlaceholder(size: CGSize(width: cellW, height: cellH))
+                }
+                HStack(spacing: gap) {
+                    tilePlaceholder(size: CGSize(width: cellW, height: cellH))
+                    tilePlaceholder(size: CGSize(width: cellW, height: cellH))
+                }
             }
         }
-    }
-
-    func four(_ imgs: [UIImage], size: CGSize) -> some View {
-        let gap: CGFloat = 2
-        let cellW = (size.width - gap) / 2
-        let cellH = (size.height - gap) / 2
-
-        return VStack(spacing: gap) {
-            HStack(spacing: gap) {
-                tile(imgs[0], size: CGSize(width: cellW, height: cellH))
-                tile(imgs[1], size: CGSize(width: cellW, height: cellH))
-            }
-            HStack(spacing: gap) {
-                tile(imgs[2], size: CGSize(width: cellW, height: cellH))
-                tile(imgs[3], size: CGSize(width: cellW, height: cellH))
+    
+    func two(_ files: [String], size: CGSize) -> some View {
+            let gap: CGFloat = 2
+            let w = (size.width - gap) / 2
+            return HStack(spacing: gap) {
+                tileFile(files[0], size: CGSize(width: w, height: size.height))
+                tileFile(files[1], size: CGSize(width: w, height: size.height))
             }
         }
-    }
 
-    func moreThanFour(_ imgs: [UIImage], size: CGSize) -> some View {
-        let gap: CGFloat = 2
-        let cellW = (size.width - gap) / 2
-        let cellH = (size.height - gap) / 2
+        func three(_ files: [String], size: CGSize) -> some View {
+            let gap: CGFloat = 2
+            let halfW = (size.width - gap) / 2
+            let halfH = (size.height - gap) / 2
 
-        let first3 = Array(imgs.prefix(3))
-        let remaining = Array(imgs.dropFirst(3))
-        let remainingExtra = max(0, remaining.count - 4) // сколько не поместилось в мини-коллаж
-
-        return VStack(spacing: gap) {
-            HStack(spacing: gap) {
-                tile(first3[0], size: CGSize(width: cellW, height: cellH))
-                tile(first3[1], size: CGSize(width: cellW, height: cellH))
+            return HStack(spacing: gap) {
+                tileFile(files[0], size: CGSize(width: halfW, height: size.height))
+                VStack(spacing: gap) {
+                    tileFile(files[1], size: CGSize(width: halfW, height: halfH))
+                    tileFile(files[2], size: CGSize(width: halfW, height: halfH))
+                }
             }
-            HStack(spacing: gap) {
-                tile(first3[2], size: CGSize(width: cellW, height: cellH))
+        }
 
-                // 4-я плитка = мини-коллаж оставшихся
-                ZStack {
-                    MiniCollageView(images: Array(remaining.prefix(4)))
-                        .frame(width: cellW, height: cellH)
-                        .clipped()
+        func four(_ files: [String], size: CGSize) -> some View {
+            let gap: CGFloat = 2
+            let cellW = (size.width - gap) / 2
+            let cellH = (size.height - gap) / 2
 
-                    if remainingExtra > 0 {
-                        // бейдж +N поверх 4-й плитки
-                        ZStack {
-                            Color.black.opacity(0.35)
-                            Text("+\(remainingExtra)")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundStyle(.white)
+            return VStack(spacing: gap) {
+                HStack(spacing: gap) {
+                    tileFile(files[0], size: CGSize(width: cellW, height: cellH))
+                    tileFile(files[1], size: CGSize(width: cellW, height: cellH))
+                }
+                HStack(spacing: gap) {
+                    tileFile(files[2], size: CGSize(width: cellW, height: cellH))
+                    tileFile(files[3], size: CGSize(width: cellW, height: cellH))
+                }
+            }
+        }
+
+        func moreThanFour(_ files: [String], size: CGSize) -> some View {
+            let gap: CGFloat = 2
+            let cellW = (size.width - gap) / 2
+            let cellH = (size.height - gap) / 2
+
+            let first3 = Array(files.prefix(3))
+            let remaining = Array(files.dropFirst(3))
+            let remainingExtra = max(0, remaining.count - 4)
+
+            return VStack(spacing: gap) {
+                HStack(spacing: gap) {
+                    tileFile(first3[0], size: CGSize(width: cellW, height: cellH))
+                    tileFile(first3[1], size: CGSize(width: cellW, height: cellH))
+                }
+                HStack(spacing: gap) {
+                    tileFile(first3[2], size: CGSize(width: cellW, height: cellH))
+
+                    ZStack {
+                        MiniCollageView(fileNames: Array(remaining.prefix(4)))
+                            .frame(width: cellW, height: cellH)
+                            .clipped()
+
+                        if remainingExtra > 0 {
+                            ZStack {
+                                Color.black.opacity(0.35)
+                                Text("+\(remainingExtra)")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
                         }
                     }
+                    .frame(width: cellW, height: cellH)
                 }
-                .frame(width: cellW, height: cellH)
             }
         }
-    }
 }
 
-// MARK: - Mini collage (внутри 4-й плитки)
-
 private struct MiniCollageView: View {
-    let images: [UIImage]
+    let fileNames: [String]
 
     var body: some View {
         GeometryReader { geo in
@@ -146,35 +186,35 @@ private struct MiniCollageView: View {
             let cellH = (s.height - gap) / 2
 
             ZStack {
-                Color(.secondarySystemBackground)
+                Color(.secondarySystemBackground).opacity(0.2)
 
-                if images.isEmpty {
+                if fileNames.isEmpty {
                     Image(systemName: "photo")
                         .foregroundStyle(.secondary)
-                } else if images.count == 1 {
-                    img(images[0]).frame(width: s.width, height: s.height)
-                } else if images.count == 2 {
+                } else if fileNames.count == 1 {
+                    tile(fileNames[0], size: s)
+                } else if fileNames.count == 2 {
                     HStack(spacing: gap) {
-                        img(images[0]).frame(width: cellW, height: s.height)
-                        img(images[1]).frame(width: cellW, height: s.height)
+                        tile(fileNames[0], size: CGSize(width: cellW, height: s.height))
+                        tile(fileNames[1], size: CGSize(width: cellW, height: s.height))
                     }
-                } else if images.count == 3 {
+                } else if fileNames.count == 3 {
                     HStack(spacing: gap) {
-                        img(images[0]).frame(width: cellW, height: s.height)
+                        tile(fileNames[0], size: CGSize(width: cellW, height: s.height))
                         VStack(spacing: gap) {
-                            img(images[1]).frame(width: cellW, height: cellH)
-                            img(images[2]).frame(width: cellW, height: cellH)
+                            tile(fileNames[1], size: CGSize(width: cellW, height: cellH))
+                            tile(fileNames[2], size: CGSize(width: cellW, height: cellH))
                         }
                     }
                 } else {
                     VStack(spacing: gap) {
                         HStack(spacing: gap) {
-                            img(images[0]).frame(width: cellW, height: cellH)
-                            img(images[1]).frame(width: cellW, height: cellH)
+                            tile(fileNames[0], size: CGSize(width: cellW, height: cellH))
+                            tile(fileNames[1], size: CGSize(width: cellW, height: cellH))
                         }
                         HStack(spacing: gap) {
-                            img(images[2]).frame(width: cellW, height: cellH)
-                            img(images[3]).frame(width: cellW, height: cellH)
+                            tile(fileNames[2], size: CGSize(width: cellW, height: cellH))
+                            tile(fileNames[3], size: CGSize(width: cellW, height: cellH))
                         }
                     }
                 }
@@ -182,10 +222,50 @@ private struct MiniCollageView: View {
         }
     }
 
-    private func img(_ uiImage: UIImage) -> some View {
-        Image(uiImage: uiImage)
-            .resizable()
-            .scaledToFill()
-            .clipped()
+    private func tile(_ fileName: String, size: CGSize) -> some View {
+        FileTileView(
+            url: ImageStore.shared.url(named: fileName),
+            cacheKey: "mini_" + fileName,
+            size: size,
+            placeholderSystemName: "photo"
+        )
+    }
+}
+
+extension ImageStore {
+    func url(named fileName: String) -> URL {
+        return fileURL(named: fileName)
+    }
+}
+
+private struct FileTileView: View {
+    let url: URL?
+    let cacheKey: String
+    let size: CGSize
+    let placeholderSystemName: String
+
+    @StateObject private var loader = FileImageLoader()
+
+    var body: some View {
+        ZStack {
+            if let ui = loader.image {
+                Image(uiImage: ui)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(systemName: placeholderSystemName)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(min(size.width, size.height) * 0.18)
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .clipped()
+        .onAppear {
+            guard let url else { return }
+            loader.load(url: url, targetSize: size, cacheKey: cacheKey)
+        }
+        .onDisappear { loader.cancel() }
     }
 }
