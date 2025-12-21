@@ -1,9 +1,17 @@
+//
+//  ImageCache.swift
+//  Amazing Woman Wardrobe
+//
+//
+
+
 import UIKit
 import ImageIO
 
 // MARK: - Downsample
 func downsampledImage(at url: URL, to pointSize: CGSize, scale: CGFloat = UIScreen.main.scale) -> UIImage? {
-    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
+    let oversample: CGFloat = 2.0   
+    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale * oversample
 
     let sourceOptions: CFDictionary = [
         kCGImageSourceShouldCache: false

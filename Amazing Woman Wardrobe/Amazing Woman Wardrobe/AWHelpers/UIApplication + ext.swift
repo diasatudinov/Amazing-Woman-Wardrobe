@@ -2,6 +2,24 @@
 //  Untitled.swift
 //  Amazing Woman Wardrobe
 //
-//  Created by Dias Atudinov on 22.12.2025.
 //
 
+import UIKit
+import SwiftUI
+
+extension UIApplication {
+    func hideKeyboard() {
+        sendAction(#selector(UIResponder.resignFirstResponder),
+                   to: nil,
+                   from: nil,
+                   for: nil)
+    }
+}
+
+extension View {
+    func hideKeyboardOnTap() -> some View {
+        self.onTapGesture {
+            UIApplication.shared.hideKeyboard()
+        }
+    }
+}

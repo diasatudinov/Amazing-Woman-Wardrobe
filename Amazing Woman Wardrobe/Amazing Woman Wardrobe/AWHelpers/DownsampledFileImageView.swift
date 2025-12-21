@@ -1,3 +1,10 @@
+//
+//  DownsampledFileImageView.swift
+//  Amazing Woman Wardrobe
+//
+//
+
+
 import SwiftUI
 
 struct DownsampledFileImageView: View {
@@ -13,7 +20,6 @@ struct DownsampledFileImageView: View {
                 if let ui = loader.image {
                     Image(uiImage: ui)
                         .resizable()
-                        .aspectRatio(contentMode: contentMode)
                 } else {
                     Image(systemName: "photo.circle")
                         .resizable()
@@ -32,6 +38,25 @@ struct DownsampledFileImageView: View {
             .onDisappear {
                 loader.cancel()
             }
+            .onChange(of: cacheID) { _ in
+                guard let url = fileURL else { return }
+                loader.load(url: url, targetSize: geo.size, cacheKey: cacheID + "_\(Int(geo.size.width))x\(Int(geo.size.height))")
+            }
+            .onChange(of: fileURL?.path ?? "") { _ in
+                guard let url = fileURL else { return }
+                loader.load(url: url, targetSize: geo.size, cacheKey: cacheID + "_\(Int(geo.size.width))x\(Int(geo.size.height))")
+            }
         }
     }
+}
+
+func imageURL(for fileName: String) -> URL? {
+    // Вставь сюда свой путь (ApplicationSupport/Images/...)
+    let fm = FileManager.default
+    let appSupport = try? fm.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    let bundle = Bundle.main.bundleIdentifier ?? "App"
+    return appSupport?
+        .appendingPathComponent(bundle, isDirectory: true)
+        .appendingPathComponent("Images", isDirectory: true)
+        .appendingPathComponent(fileName)
 }

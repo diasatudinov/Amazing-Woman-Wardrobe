@@ -1,3 +1,10 @@
+//
+//  ImageStore.swift
+//  Amazing Woman Wardrobe
+//
+//
+
+
 import UIKit
 
 final class ImageStore {
@@ -65,7 +72,7 @@ final class ImageStore {
         return base.appendingPathComponent("Images", isDirectory: true)
     }
 
-    private func fileURL(named fileName: String) -> URL {
+    func fileURL(named fileName: String) -> URL {
         let folder = try! imagesFolderURL()
         return folder.appendingPathComponent(fileName)
     }

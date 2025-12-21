@@ -1,3 +1,10 @@
+//
+//  FileImageLoader.swift
+//  Amazing Woman Wardrobe
+//
+//
+
+
 import SwiftUI
 
 @MainActor
