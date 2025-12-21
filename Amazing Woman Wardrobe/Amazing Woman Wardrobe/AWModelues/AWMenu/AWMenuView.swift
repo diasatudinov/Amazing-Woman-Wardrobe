@@ -26,7 +26,7 @@ struct AWMenuContainer: View {
 
 struct AWMenuView: View {
     @State var selectedTab = 0
-//    @StateObject var diveViewModel = BBMyDivesViewModel()
+    @StateObject var outfitViewModel = AWOutfitsViewModel()
     private let tabs = ["My dives", "Calendar", "Stats"]
     
     var body: some View {
@@ -34,9 +34,9 @@ struct AWMenuView: View {
             
             switch selectedTab {
             case 0:
-                Color.black.ignoresSafeArea()
+                AWOutfitsView(viewModel: outfitViewModel)
             case 1:
-                Color.secondaryText.ignoresSafeArea()
+                AWWardrobeView(viewModel: outfitViewModel)
             case 2:
                 Color.bg.ignoresSafeArea()
             default:
@@ -64,7 +64,9 @@ struct AWMenuView: View {
                             
                         }
                     }
-                }.padding(.horizontal, 32)
+                }
+                .padding(.horizontal, 32)
+                .background(.bg.opacity(0.5))
             }
             .padding(.bottom, 30)
                 .ignoresSafeArea()
