@@ -12,9 +12,16 @@ final class AWOutfitsViewModel: ObservableObject {
             saveOutfits()
         }
     }
+    
     @Published var outfitItems: [Item] = [] {
         didSet {
             saveOutfitItems()
+        }
+    }
+    
+    @Published var events: [Event] = [] {
+        didSet {
+            saveEvents()
         }
     }
     
@@ -27,11 +34,16 @@ final class AWOutfitsViewModel: ObservableObject {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return dir.appendingPathComponent("outfitItemsTest3.json")
     }
+    private var eventsFileURL: URL {
+        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        return dir.appendingPathComponent("eventsTest3.json")
+    }
     
     // MARK: – Init
     init() {
         loadOutfits()
         loadOutfitItems()
+        loadEvents()
     }
     
     // MARK: – Save / Load Outfits
@@ -88,6 +100,33 @@ final class AWOutfitsViewModel: ObservableObject {
         }
     }
     
+    // MARK: – Save / Load Events
+    
+    private func saveEvents() {
+        let url = eventsFileURL
+        do {
+            let data = try JSONEncoder().encode(events)
+            try data.write(to: url, options: [.atomic])
+        } catch {
+            print("Failed to save myDives:", error)
+        }
+    }
+    
+    private func loadEvents() {
+        let url = eventsFileURL
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let itemsData = try JSONDecoder().decode([Event].self, from: data)
+            events = itemsData
+        } catch {
+            print("Failed to load myDives:", error)
+        }
+    }
+    
     // MARK: – Example buy action
     func add(outfit: Outfit) {
         guard !outfits.contains(outfit) else { return }
@@ -132,5 +171,25 @@ final class AWOutfitsViewModel: ObservableObject {
         guard let index = outfitItems.firstIndex(of: item) else { return }
         outfitItems[index].imageFileName = image
         outfitItems[index].imageVersion += 1
+    }
+    
+    // MARK: – Example buy action
+    func add(event: Event) {
+        guard !events.contains(event) else { return }
+        events.append(event)
+        
+    }
+    
+    func delete(event: Event) {
+        guard let index = events.firstIndex(of: event) else { return }
+        events.remove(at: index)
+    }
+    
+    func edit(event: Event, name: String, date: Date, type: EventType, outfit: Outfit?) {
+        guard let index = events.firstIndex(of: event) else { return }
+        events[index].name = name
+        events[index].date = date
+        events[index].type = type
+        events[index].outfit = outfit
     }
 }

@@ -23,6 +23,21 @@ struct Item: Codable, Equatable, Hashable {
     var imageVersion: Int = 0
 }
 
+struct Event: Codable, Equatable, Hashable, Identifiable {
+    var id = UUID()
+    var name: String
+    var date: Date
+    var type: EventType
+    var outfit: Outfit?
+}
+
+enum EventType: String, CaseIterable, Codable {
+    case wedding = "Wedding"
+    case meeting = "Business meeting"
+    case party = "Party"
+    case other = "Other"
+}
+
 enum ItemCategory: String, CaseIterable, Codable {
     case top = "Top"
     case bottom = "Bottom"

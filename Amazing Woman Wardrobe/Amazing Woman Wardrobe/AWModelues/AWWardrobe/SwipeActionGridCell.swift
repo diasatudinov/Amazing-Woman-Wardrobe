@@ -31,7 +31,6 @@ struct SwipeActionGridCell<Content: View>: View {
                     Button {
                         close()
                         onEdit()
-                        print("onEdit")
                     } label: {
                         Image(.editBtnAW)
                             .resizable()
@@ -42,7 +41,6 @@ struct SwipeActionGridCell<Content: View>: View {
                     Button(role: .destructive) {
                         close()
                         onDelete()
-                        print("onDelete")
                     } label: {
                         Image(.deleteBtnAW)
                             .resizable()

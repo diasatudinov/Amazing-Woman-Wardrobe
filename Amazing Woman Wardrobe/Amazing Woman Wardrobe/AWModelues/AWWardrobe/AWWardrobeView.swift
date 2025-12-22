@@ -51,7 +51,7 @@ struct AWWardrobeView: View {
                 .padding(.bottom, 150)
                 
             } else {
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 18) {
                         ForEach(viewModel.outfitItems, id: \.id) { item in
                             
