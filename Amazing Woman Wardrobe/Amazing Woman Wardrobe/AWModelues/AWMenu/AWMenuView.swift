@@ -38,7 +38,7 @@ struct AWMenuView: View {
             case 1:
                 AWWardrobeView(viewModel: outfitViewModel)
             case 2:
-                Color.bg.ignoresSafeArea()
+                AWCalendarView(viewModel: outfitViewModel)
             default:
                 Text("default")
             }
