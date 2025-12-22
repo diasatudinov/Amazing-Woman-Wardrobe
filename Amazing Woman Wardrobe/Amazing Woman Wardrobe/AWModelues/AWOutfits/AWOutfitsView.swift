@@ -50,7 +50,7 @@ struct AWOutfitsView: View {
                 .padding(.bottom, 150)
                 
             } else {
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 18) {
                         ForEach(viewModel.outfits, id: \.id) { outfit in
                             VStack {

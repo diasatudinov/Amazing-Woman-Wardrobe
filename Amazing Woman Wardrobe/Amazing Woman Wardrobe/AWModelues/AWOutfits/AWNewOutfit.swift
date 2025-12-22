@@ -193,7 +193,7 @@ struct AWNewOutfit: View {
                 .buttonStyle(.plain)
                 .frame(maxHeight: .infinity, alignment: .bottom)
             }
-            .padding(.bottom, 150)
+            .padding(.bottom, 80)
         }
         .padding(.horizontal)
         .background(.bg)

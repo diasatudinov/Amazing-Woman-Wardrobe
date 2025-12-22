@@ -61,7 +61,7 @@ struct AWAddItemView: View {
                     .foregroundStyle(.calendar)
             }
             
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 LazyVGrid(columns: columns) {
                     ForEach(viewModel.outfitItems.filter({ $0.category == currentCategory }), id: \.id) { item in
                         VStack {
